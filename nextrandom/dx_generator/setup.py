@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 21 21:50:03 2024
-
-Author: Tony Lin
-
-Description: None
-
-Project name: None
-
-Reference: None
-
-"""
 
 
 # setup.py

@@ -1,18 +1,5 @@
 #cython: binding=True
 
-"""
-Created on Thu Oct  3 22:14:26 2024
-
-Author: Tony Lin
-
-Description: Define DXGenerator Classes
-
-Project name: python rng package
-
-Reference: None
-
-"""
-
 
 import numpy as np
 cimport numpy as np

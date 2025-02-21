@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Oct  4 00:12:08 2024
-
-Author: Tony Lin
-
-Description: None
-
-Project name: None
-
-Reference: None
-
-"""
 
 
 from ._dx_generator32 import _DXGenerator32
