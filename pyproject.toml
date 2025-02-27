@@ -1,0 +1,59 @@
+[build-system]
+requires = [
+    "setuptools>=61.0", 
+    "wheel", 
+    "Cython>=3.0.10,<4",
+    "numpy>=2.0.0,<3"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nextrandom"
+version = "0.1.0"
+dependencies = [
+    "numpy>=2.0.0,<3",
+]
+authors = [
+  { name="Lin, Chin-Tung", email="tonylin8704@gmail.com" },
+]
+maintainers = [
+  { name="Lin, Chin-Tung", email="tonylin8704@gmail.com" },
+]
+description = "NextRandom: Next Generation Random Number Generators"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: C",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering"
+]
+keywords = [
+    "pseudo-random number generation", 
+    "pseudo-random number generator",
+    "PRNG",
+    "RNG",
+    "randomness",
+    "DX generator",
+    "Monte Carlo simulation",
+    "statistical simulation",
+    "statistical sampling"
+]
+
+
+[project.urls]
+Homepage = "https://github.com/chintunglin/nextrandom"

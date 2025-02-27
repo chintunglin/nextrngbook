@@ -1,0 +1,4 @@
+recursive-include nextrandom *.py *.pyx *.pxd *.h *.in *.csv *.md
+recursive-exclude nextrandom *.c
+recursive-include nextrandom/dx_generator/src *.c
+
