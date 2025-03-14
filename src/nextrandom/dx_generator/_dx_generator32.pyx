@@ -77,9 +77,10 @@ cdef uint64_t dx_k_2_raw(void *st) noexcept nogil:
 cdef class _DXGenerator32(BitGenerator):
     
     cdef int _ss
+    cdef float log10_period
     cdef dx_k_s_state _rng_state
 
-    def __init__(self, _bb, _pp, _kk, _ss, seed=None):
+    def __init__(self, _bb, _pp, _kk, _ss, log10_period=None, seed=None):
         
         BitGenerator.__init__(self, seed)
         
@@ -88,6 +89,7 @@ cdef class _DXGenerator32(BitGenerator):
         self._rng_state.pp = _pp
         self._rng_state.kk = _kk
         self._ss = _ss
+        self.log10_period  = log10_period
         
         # initial seeding
         val = self._seed_seq.generate_state(self._rng_state.kk, np.uint32)
@@ -102,7 +104,29 @@ cdef class _DXGenerator32(BitGenerator):
         # Numpy format
         self._bitgen.state = &self._rng_state
         self._specify_s()
+    
+    
+    def __repr__(self):
         
+        return (
+            f"{self.__class__.__name__}("
+            f"{self._rng_state.bb}, "
+            f"{self._rng_state.pp}, "
+            f"{self._rng_state.kk}, "
+            f"{self._ss}, "
+            f"{self.log10_period}"
+            ")"
+            )
+    
+    
+    def __str__(self):
+        
+        return (
+            f"DX-{self._rng_state.kk}-{self._ss} generator\n"
+            f"Multiplier = {self._rng_state.bb}\n"
+            f"Modulus    = {self._rng_state.pp}\n"
+            f"The log₁₀(period) of the PRNG is {self.log10_period:.1f}\n"
+            )
 
     @property
     def state(self):

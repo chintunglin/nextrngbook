@@ -2,37 +2,38 @@
 
 
 from ._dx_generator32 import _DXGenerator32
+import csv
+import os
 
-__all__ = ["custom_dx32", "default_dx32", "get_default_dx32_args"]
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-
-# Default dx_generator setting
-# 32-bits: dx_643_1
-_bb32 = 42720
-_pp32 = 2147483647  # 2 ** 31 - 1
-_kk32 = 643
-_ss32 = 1
+__all__ = ["create_dx32"]
 
 
-def custom_dx32(bb=_bb32, pp=_pp32, kk=_kk32, ss=_ss32, seed=None):
+# read parameters
+with open(os.path.join(current_dir, "data", "dx32_parameters.csv"), 
+          "r", newline="") as dx32_csv:
     
-    return _DXGenerator32(bb, pp, kk, ss, seed)
-
-
-def default_dx32(seed=None):
+    dx32_parameter_reader = csv.DictReader(dx32_csv, delimiter=",")
     
-    return _DXGenerator32(_bb32, _pp32, _kk32, _ss32, seed)
+    dx32_parameter_table = \
+        {int(parameter.pop("dx32_id")): parameter for parameter in dx32_parameter_reader}
+
+
+def create_dx32(dx32_id=270, seed=None):
     
-
-def get_default_dx32_args():
+    dx32_id = int(dx32_id) # to ensure data type
     
-    return {"bb": _bb32, 
-            "pp": _pp32,
-            "kk": _kk32,
-            "ss": _ss32}
-
-
-
-
-
-
+    target_dx32_parameters = dx32_parameter_table[dx32_id]
+    
+    target_dx32_parameters = {key: float(value) \
+                                  for key, value in target_dx32_parameters.items()}
+        
+    dx32_parameter_table[dx32_id] = target_dx32_parameters
+    
+    return _DXGenerator32(target_dx32_parameters["bb"], 
+                          target_dx32_parameters["pp"], 
+                          target_dx32_parameters["kk"], 
+                          target_dx32_parameters["ss"], 
+                          target_dx32_parameters["log10(period)"],
+                          seed)

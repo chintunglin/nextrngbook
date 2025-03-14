@@ -14,7 +14,7 @@
 #endif
 
 #define B_LCG 16807     // LCG for seeding
-#define KK 700       // upper limit of kk (num. of terms of the dx_kk_s generator)
+#define KK 50873       // upper limit of kk (num. of terms of the dx_kk_s generator)
 
 
 // 32-bit rescale
