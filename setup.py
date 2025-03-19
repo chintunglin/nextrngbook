@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 from setuptools import setup, Extension, find_packages
 from Cython.Build import cythonize
@@ -23,9 +24,11 @@ extensions = [
 
 setup(
     name="nextrandom",
-    packages=find_packages(where="src"),
+    packages=find_packages(where="src", 
+                           exclude=["nextrandom.dx_generator.data", 
+                                    "nextrandom.dx_generator.src"]),
     package_dir={'': 'src'},
+    include_package_data=True,
+    package_data={"nextrandom.dx_generator": ["data/*"]},
     ext_modules=cythonize(extensions, language_level="3str")
 )
-
-

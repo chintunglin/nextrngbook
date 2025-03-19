@@ -1,7 +1,38 @@
 /*
- * DX-k-s 32 bits generator, for k <= KK, s = 1, 2
+ * The C source and header files are part of the Python package: nextrandom.
  * 
+ * The core random number generator (RNG) is the 
+ * 32-bit DX-k-s generator (for k <= KK, s = 1, 2 in this file) described in:
+ *
+ *     A system of high-dimensional, efficient, long-cycle and portable uniform random 
+ *     number generators, Deng, Lih-Yuan et al., ACM Trans. Model. Comput. Simul., 2003.
+ *     Available at: https://dl.acm.org/doi/10.1145/945511.945513
+ * 
+ * The implementation is based on the algorithm in the paper, 
+ * with some variables and function names following the C code provided, but the code is 
+ * independently written for this package.
+ * 
+ * The implementation was carried out by Chin-Tung Lin, 
+ * with theoretical guidance and suggestions from Prof. Lih-Yuan Deng <lihdeng@memphis.edu>, 
+ * Prof. Henry Horng-Shing Lu <henryhslu@nycu.edu.tw>, and Prof. Ching-Chi Yang <cyang3@memphis.edu>.
+ *
+ * The code structure has been adapted to follow the layout and design 
+ * patterns of NumPy's and randomgen's RNG implementation, 
+ * as described in their source code:
+ * 
+ *      Numpy: https://github.com/numpy/numpy/tree/main/numpy/random/src
+ * 
+ *      randomgen: https://github.com/bashtage/randomgen/tree/main/randomgen/src
+ * 
+ * For further details on the DX generator and related works, visit Prof. Deng's webpage:
+ *      https://www.memphis.edu/msci/people/lihdeng.php
+ *
+ * Copyright (c) 2025 Chin-Tung Lin <tonylin8704@gmail.com>
+ * 
+ * This code is licensed under the MIT License. 
+ * See the LICENSE file in the project root for more information.
  */
+
 
 #ifndef DX_K_S_32_H
 #define DX_K_S_32_H
@@ -13,89 +44,75 @@
 #define inline __forceinline
 #endif
 
-#define B_LCG 16807     // LCG for seeding
-#define KK 50873       // upper limit of kk (num. of terms of the dx_kk_s generator)
+#define B_LCG 16807     // multiplier of LCG for seeding by dx_k_s_32_set_seed
+#define KK 50873       // upper limit of kk (KK should be <= 2^31 - 1 in this code)
+#define TWO_POWER_32 (1ULL << 32)
 
-
-// 32-bit rescale
-#define NEXT32_RESCALE(s, p) ((uint32_t)((s) * (4294967296.0 / (p))))
-//#define NEXT32_ROTATE1(s, r) (((s) >> (r)) | ((s) << (32 - (r))))
-//#define NEXT32_ROTATE2_XOR(s, r1, r2) ((NEXT32_ROTATE1(s, r1)) ^ (NEXT32_ROTATE1(s, r2)))
-//#define NEXT32_ROTATE2_MOD(s, r1, r2) ((NEXT32_ROTATE1(s, r1)) + (NEXT32_ROTATE1(s, r2)))
 
 // the state information
-typedef struct s_dx_k_s_state {
+typedef struct s_dx_k_s_32_state {
     uint32_t XX[KK];  // states with at most KK terms
-    uint16_t II;      // running index
+    int II;           // running index
     uint32_t bb;      // multiplier
-    uint32_t pp;      // modulo pp
-    uint16_t kk;      // num. of terms of the dx_kk_s generator
-} dx_k_s_state;
+    uint32_t pp;      // modulus
+    int kk;           // the order of recurrence (kk <= KK)
+    double hh;        // hh = 1 / (2 * pp)
+} dx_k_s_32_state;
 
 
 // seeding
-void initialize(dx_k_s_state *state, uint32_t seed);
+void dx_k_s_32_set_seed(dx_k_s_32_state *state, uint32_t bb, uint32_t pp, int kk, uint32_t seed);
+
 
 // update functions
-void dx_k_1(dx_k_s_state *state);
-void dx_k_2(dx_k_s_state *state);
+void dx_k_1(dx_k_s_32_state *state);
+void dx_k_2(dx_k_s_32_state *state);
 
 
-// for dx_k_1 generator family
+// for dx_k_1 generator
+// generate a double in (0, 1)
+static inline double dx_k_1_next_double(dx_k_s_32_state *state) {
+    
+    dx_k_1(state); // update the state
+    
+    return ((double) state->XX[state->II] / state->pp) + state->hh;
+}
+
 // generate a 32 bit random number
-static inline uint32_t dx_k_1_next32(dx_k_s_state *state) {
-                                         
-  dx_k_1(state); // update the state
-  
-  return NEXT32_RESCALE(state->XX[state->II], state->pp);
-  
+static inline uint32_t dx_k_1_next32(dx_k_s_32_state *state) {
+
+  return (uint32_t)(dx_k_1_next_double(state) * TWO_POWER_32);
 }
 
 // generate a 64 bit random number (combine two 32 bit random numbers)
-static inline uint64_t dx_k_1_next64(dx_k_s_state *state) {
+static inline uint64_t dx_k_1_next64(dx_k_s_32_state *state) {
+    
   return (uint64_t) dx_k_1_next32(state) << 32 | 
                     dx_k_1_next32(state);
 }
 
-// generate a double in [0, 1)
-static inline double dx_k_1_next_double(dx_k_s_state *state) {
-    
-    dx_k_1(state); // update the state
-    
-    return (double) state->XX[state->II] / state->pp;
-  
-}
 
-
-
-// for dx_k_2 generator family
-// generate a 32 bit random number
-static inline uint32_t dx_k_2_next32(dx_k_s_state *state) {
-                                         
-  dx_k_2(state); // update the state
-  
-  return NEXT32_RESCALE(state->XX[state->II], state->pp);
-  
-}
-
-// generate a 64 bit random number (combine two 32 bit random numbers)
-static inline uint64_t dx_k_2_next64(dx_k_s_state *state) {
-  return (uint64_t) dx_k_2_next32(state) << 32 | 
-                    dx_k_2_next32(state);
-}
-
-// generate a double in [0, 1)
-static inline double dx_k_2_next_double(dx_k_s_state *state) {
+// for dx_k_2 generator
+// generate a double in (0, 1)
+static inline double dx_k_2_next_double(dx_k_s_32_state *state) {
   
     dx_k_2(state); // update the state
     
-    return (double) state->XX[state->II] / state->pp;
-  
+    return ((double) state->XX[state->II] / state->pp) + state->hh;
 }
 
+// generate a 32 bit random number
+static inline uint32_t dx_k_2_next32(dx_k_s_32_state *state) {
 
+  return (uint32_t)(dx_k_2_next_double(state) * TWO_POWER_32);
+}
 
-
+// generate a 64 bit random number (combine two 32 bit random numbers)
+static inline uint64_t dx_k_2_next64(dx_k_s_32_state *state) {
+    
+  return (uint64_t) dx_k_2_next32(state) << 32 | 
+                    dx_k_2_next32(state);
+}
 
 
 #endif

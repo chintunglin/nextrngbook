@@ -3,121 +3,118 @@
 
 import numpy as np
 cimport numpy as np
-
-from libc.stdint cimport uint16_t, uint32_t, uint64_t
+from libc.stdint cimport uint32_t, uint64_t
 from numpy.random cimport BitGenerator
 
 __all__ = ["_DXGenerator32"]
-
-_ss_support = {1, 2} # supported ss arguments in dx_kk_ss
 
 np.import_array()
 
 
 cdef extern from "src/dx_k_s_32.h":
     
-    enum: KK
+    enum: KK # supported upper limit of kk argument for _DXGenerator32
 
-    struct s_dx_k_s_state:
-        uint32_t XX[KK]   # states with at most KK terms (KK was defined in the C header)
-        uint16_t II       # running index
+    struct s_dx_k_s_32_state:
+        uint32_t XX[KK]   # states with at most KK terms
+        int II            # running index
         uint32_t bb       # multiplier
-        uint32_t pp       # modulo pp
-        uint16_t kk       # num. of terms of the dx_kk_s generator
+        uint32_t pp       # modulus
+        int kk            # the order of recurrence (kk <= KK)
+        double hh         # hh = 1 / (2 * pp)
 
-    ctypedef s_dx_k_s_state dx_k_s_state # rename (to match C codes)
+    ctypedef s_dx_k_s_32_state dx_k_s_32_state # rename (to match C codes)
 
-    # random number generation functions
-    ## dx_k_1 generators
-    uint32_t dx_k_1_next32(dx_k_s_state *state)  nogil
+    # declare functions for random number generation
+    ## dx_k_1
+    uint32_t dx_k_1_next32(dx_k_s_32_state *state) noexcept nogil
     
-    uint64_t dx_k_1_next64(dx_k_s_state *state)  nogil
+    uint64_t dx_k_1_next64(dx_k_s_32_state *state) noexcept nogil
     
-    double dx_k_1_next_double(dx_k_s_state *state)  nogil
+    double dx_k_1_next_double(dx_k_s_32_state *state) noexcept nogil
     
-    ## dx_k_2 generators
-    uint32_t dx_k_2_next32(dx_k_s_state *state)  nogil
+    ## dx_k_2
+    uint32_t dx_k_2_next32(dx_k_s_32_state *state) noexcept nogil
     
-    uint64_t dx_k_2_next64(dx_k_s_state *state)  nogil
+    uint64_t dx_k_2_next64(dx_k_s_32_state *state) noexcept nogil
     
-    double dx_k_2_next_double(dx_k_s_state *state)  nogil
-    
+    double dx_k_2_next_double(dx_k_s_32_state *state) noexcept nogil
     
 
-# Numpy format
-## dx_k_1 generators
-
+# Define functions of required format
+## dx_k_1
 cdef uint32_t dx_k_1_uint32(void *st) noexcept nogil:
-    return dx_k_1_next32(<dx_k_s_state *> st)
+    return dx_k_1_next32(<dx_k_s_32_state *> st)
 
 cdef uint64_t dx_k_1_uint64(void *st) noexcept nogil:
-    return dx_k_1_next64(<dx_k_s_state *> st)
+    return dx_k_1_next64(<dx_k_s_32_state *> st)
 
 cdef double dx_k_1_double(void *st) noexcept nogil:
-    return dx_k_1_next_double(<dx_k_s_state *> st)
+    return dx_k_1_next_double(<dx_k_s_32_state *> st)
 
 cdef uint64_t dx_k_1_raw(void *st) noexcept nogil:
-    return <uint64_t>dx_k_1_next32(<dx_k_s_state *> st)
+    return <uint64_t>dx_k_1_next32(<dx_k_s_32_state *> st)
 
-
-## dx_k_2 generators
+## dx_k_2
 cdef uint32_t dx_k_2_uint32(void *st) noexcept nogil:
-    return dx_k_2_next32(<dx_k_s_state *> st)
+    return dx_k_2_next32(<dx_k_s_32_state *> st)
 
 cdef uint64_t dx_k_2_uint64(void *st) noexcept nogil:
-    return dx_k_2_next64(<dx_k_s_state *> st)
+    return dx_k_2_next64(<dx_k_s_32_state *> st)
 
 cdef double dx_k_2_double(void *st) noexcept nogil:
-    return dx_k_2_next_double(<dx_k_s_state *> st)
+    return dx_k_2_next_double(<dx_k_s_32_state *> st)
 
 cdef uint64_t dx_k_2_raw(void *st) noexcept nogil:
-    return <uint64_t>dx_k_2_next32(<dx_k_s_state *> st)
+    return <uint64_t>dx_k_2_next32(<dx_k_s_32_state *> st)
 
 
 cdef class _DXGenerator32(BitGenerator):
     
-    cdef int _ss
-    cdef float log10_period
-    cdef dx_k_s_state _rng_state
+    _ss_support = {1, 2} # supported ss argument for _DXGenerator32
+    
+    cdef int __ss
+    cdef float _log10_period
+    cdef dx_k_s_32_state _rng_state
 
-    def __init__(self, _bb, _pp, _kk, _ss, log10_period=None, seed=None):
-        
+    def __init__(self, bb, pp, kk, ss, log10_period=np.nan, seed=None):
+
         BitGenerator.__init__(self, seed)
         
-        # specify the dx_k_s generator
-        self._rng_state.bb = _bb
-        self._rng_state.pp = _pp
-        self._rng_state.kk = _kk
-        self._ss = _ss
-        self.log10_period  = log10_period
+        # specify dx_k_s
+        self._rng_state.bb = bb
+        self._rng_state.pp = pp
+        self._rng_state.kk = kk
+        self._rng_state.hh = 1 / (2 * <double> pp)
+        self._ss = ss
+        self._log10_period = log10_period
         
         # initial seeding
         val = self._seed_seq.generate_state(self._rng_state.kk, np.uint32)
         
-        self._rng_state.XX[0] = 0x80000000UL # avoid all-zeros
+        ## reset the first seed to be in {1, ..., pp-1} (seed can't be all zero)
+        self._rng_state.XX[0] = val[0] % (self._rng_state.pp - <uint32_t> 1) + <uint32_t> 1
+        
         for i in range(1, self._rng_state.kk):
-            self._rng_state.XX[i] = val[i]
+            self._rng_state.XX[i] = val[i] % self._rng_state.pp # {0, ..., pp-1}
         
         # initialize running index
         self._rng_state.II = i
-
-        # Numpy format
+        
+        # connect to _bitgen
         self._bitgen.state = &self._rng_state
-        self._specify_s()
-    
-    
+
     def __repr__(self):
         
         return (
             f"{self.__class__.__name__}("
-            f"{self._rng_state.bb}, "
-            f"{self._rng_state.pp}, "
-            f"{self._rng_state.kk}, "
-            f"{self._ss}, "
-            f"{self.log10_period}"
+            f"bb={self._rng_state.bb}, "
+            f"pp={self._rng_state.pp}, "
+            f"kk={self._rng_state.kk}, "
+            f"ss={self._ss}, "
+            f"log10_period={self._log10_period}"
             ")"
-            )
-    
+        )
     
     def __str__(self):
         
@@ -125,13 +122,38 @@ cdef class _DXGenerator32(BitGenerator):
             f"DX-{self._rng_state.kk}-{self._ss} generator\n"
             f"Multiplier = {self._rng_state.bb}\n"
             f"Modulus    = {self._rng_state.pp}\n"
-            f"The log₁₀(period) of the PRNG is {self.log10_period:.1f}\n"
-            )
+            f"The log₁₀(period) of the PRNG is {self._log10_period:.1f}\n"
+        )
+
+    @property
+    def _ss(self):
+        
+        return self.__ss
+    
+    @_ss.setter
+    def _ss(self, value):
+        
+        if value == 1: # dx_k_1
+            self._bitgen.next_uint32 = &dx_k_1_uint32
+            self._bitgen.next_uint64 = &dx_k_1_uint64
+            self._bitgen.next_double = &dx_k_1_double
+            self._bitgen.next_raw = &dx_k_1_raw
+            
+        elif value == 2: #dx_k_2
+            self._bitgen.next_uint32 = &dx_k_2_uint32
+            self._bitgen.next_uint64 = &dx_k_2_uint64
+            self._bitgen.next_double = &dx_k_2_double
+            self._bitgen.next_raw = &dx_k_2_raw
+    
+        else:
+            raise ValueError(f"ss must be in {_DXGenerator32._ss_support}.")
+
+        self.__ss = value
 
     @property
     def state(self):
         """
-        Get the PRNG state
+        Get and set the PRNG state
 
         Returns
         -------
@@ -139,8 +161,7 @@ cdef class _DXGenerator32(BitGenerator):
             Dictionary containing the information required to describe the
             state of the PRNG
         """
-        
-        
+
         XX = np.zeros(self._rng_state.kk, dtype=np.uint32)
         
         for i in range(self._rng_state.kk):
@@ -151,7 +172,8 @@ cdef class _DXGenerator32(BitGenerator):
                           "bb": self._rng_state.bb,
                           "pp": self._rng_state.pp,
                           "kk": self._rng_state.kk,
-                          "ss": self._ss}}
+                          "ss": self._ss,
+                          "log10_period": self._log10_period}}
 
     @state.setter
     def state(self, value):
@@ -159,42 +181,21 @@ cdef class _DXGenerator32(BitGenerator):
         if not isinstance(value, dict):
             raise TypeError("State must be a dict.")
             
-        bitgen = value.get('bit_generator', '')
+        bitgen = value.get("bit_generator", "")
         if bitgen != self.__class__.__name__:
-            raise ValueError('state must be for a {0} '
-                             'PRNG'.format(self.__class__.__name__))
-            
-        if value["state"]["ss"] not in _ss_support:
-            raise ValueError(f"ss must be in {_ss_support}.")
+            raise ValueError(
+                f"State must be for a {self.__class__.__name__} PRNG."
+            )
+
+        self._ss = value["state"]["ss"]
+        self._rng_state.II = value["state"]["II"]
+        self._rng_state.bb = value["state"]["bb"]
+        self._rng_state.pp = value["state"]["pp"]
+        self._rng_state.kk = value["state"]["kk"]
+        self._rng_state.hh = 1 / (2 * <double> self._rng_state.pp)
             
         XX = value["state"]["XX"]
         for i in range(self._rng_state.kk):
             self._rng_state.XX[i] = XX[i]
             
-        self._rng_state.II = value["state"]["II"]
-        self._rng_state.bb = value["state"]["bb"]
-        self._rng_state.pp = value["state"]["pp"]
-        self._rng_state.kk = value["state"]["kk"]
-        
-        self._ss = value["state"]["ss"]
-        self._specify_s()
-
-    
-    def _specify_s(self):
-        
-        
-        if self._ss == 1: # dx_k_1
-            self._bitgen.next_uint32 = &dx_k_1_uint32
-            self._bitgen.next_uint64 = &dx_k_1_uint64
-            self._bitgen.next_double = &dx_k_1_double
-            self._bitgen.next_raw = &dx_k_1_raw
-            
-        elif self._ss == 2: #dx_k_2
-            self._bitgen.next_uint32 = &dx_k_2_uint32
-            self._bitgen.next_uint64 = &dx_k_2_uint64
-            self._bitgen.next_double = &dx_k_2_double
-            self._bitgen.next_raw = &dx_k_2_raw
-    
-        else:
-            raise ValueError(f"_ss must be in {_ss_support}.")
-
+        self._log10_period = value["state"]["log10_period"]
