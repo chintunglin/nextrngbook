@@ -1,14 +1,60 @@
 # -*- coding: utf-8 -*-
+# MIT License
+# Copyright (c) 2025 chintunglin
 
+"""Provides an interface for generating `_DXGenerator32` objects from `dx32_id` values.
+
+Provides an end-user interface for generating _DXGenerator32 objects 
+based on `dx32_id` values. It also allows users to access the internal table of `dx32_id` 
+values and their parameters, as well as retrieve the maximum allowed `dx32_id`.
+ 
+The `dx32_id_table` is organized such that each `dx32_id` corresponds to a 
+unique set of parameters. The `dx32_id` values are assigned in ascending 
+order based on the `log10(period)` value of the parameters.
+
+Examples:
+    >>> from nextrandom.dx_generator import create_dx32
+    >>> create_dx32()
+    _DXGenerator32(
+        bb=32747, pp=4294966997, kk=2, ss=2, log10_period=19.299999237060547
+    )
+    >>> from nextrandom import dx_generator
+    >>> dx32_id_table = dx_generator.get_dx32_id_table()
+    >>> print(dx32_id_table)
+    {0: {'kk': '2', 'ss': '1', 'bb': '32693', 'pp': '2147483249', 'log10(period)': '18.7'}, 
+     1: {'kk': '2', 'ss': '1', 'bb': '32710', 'pp': '2147483249', 'log10(period)': '18.7'},
+     ...}
+    >>> max_dx32_id = dx_generator.get_dx32_max_id()
+    >>> print(max_dx32_id)
+    4194
+
+**Functions:**
+
+- `create_dx32(dx32_id, seed=None)` - Returns a `_DXGenerator32` object 
+    generated from the internal parameters.
+- `get_dx32_id_table()` - Returns the internal table of `dx32_id` values 
+    and their associated parameters.
+- `get_dx32_max_id()` - Returns the maximum allowed `dx32_id` value.
+
+**Type Aliases:**
+    
+- `SeedType` - Type alias for valid seed input types. Can be `None`, `int`, 
+`NDArray[np.integer]`, `SeedSequence`, or a sequence of integers.
+"""
 
 from ._dx_generator32 import _DXGenerator32
 import csv
 import os
 import warnings
 import random
+import numpy as np
+from numpy.typing import NDArray
+from numpy.random import SeedSequence
+from typing import Union, Sequence
 
 __all__ = ["create_dx32", "get_dx32_id_table", "get_dx32_max_id"]
 
+SeedType = Union[None, int, NDArray[np.integer], SeedSequence, Sequence[int]]
 
 # read parameters
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,18 +73,44 @@ del dx32_csv
 del dx32_parameter_reader
 
 
-def create_dx32(dx32_id=270, seed=None):
-    """Return a _DXGenerator32 object.
+def create_dx32(dx32_id: Union[float, int] = 270, 
+                seed: SeedType = None) -> _DXGenerator32:
+    """Returns a `_DXGenerator32` object generated from the internal parameters.
+    
+    Retrieves the corresponding parameters from the internal table based on 
+    the given `dx32_id`, and then returns the corresponding `_DXGenerator32` object
+    based on these parameters.
+    
+    If `dx32_id` exceeds the maximum allowed value, it is mapped to a fixed value 
+    within the valid range, with the specific mapping depending on the given 
+    `dx32_id`. Regardless of whether `dx32_id` is within the valid range or has
+    been mapped, the function will always return the generated object with the 
+    same parameter settings for the same `dx32_id` on every call.
+    
+    The maximum allowed `dx32_id` value can be retrieved using the function 
+    `get_dx32_max_id`. To inspect the full table of `dx32_id` values and their 
+    corresponding parameters, use the function `get_dx32_id_table`.
+
     
     Args:
-        dx32_id
-        seed
+        dx32_id: A non-negative integer representing the identifier used to 
+            retrieve the corresponding parameters from the internal table.
+        seed: A value used to initialize the random number generator. If None, 
+            fresh and unpredictable entropy will be retrieved from the OS. 
+            If an int or array-like of integers is provided, it will be passed 
+            to `SeedSequence` to set the initial state of the BitGenerator. 
+            Alternatively, a `SeedSequence` instance can also be used directly. 
+            This function uses the same seeding mechanism as NumPy's random system.
         
-    Returns:
-        A _DXGenerator32 object.
-    
-    
-    
+    Examples:
+        >>> create_dx32()
+        _DXGenerator32(
+            bb=32747, pp=4294966997, kk=2, ss=2, log10_period=19.299999237060547
+        )
+        >>> create_dx32(dx32_id=4000)
+        _DXGenerator32(
+            bb=1046381, pp=2147472413, kk=1301, ss=2, log10_period=12140.7998046875
+        )
     """
     
     if int(dx32_id) != dx32_id:
@@ -78,11 +150,11 @@ def create_dx32(dx32_id=270, seed=None):
                           seed)
 
 
-def get_dx32_id_table():
-    
+def get_dx32_id_table() -> dict:
+    """Returns the internal table of `dx32_id` values and their associated parameters."""
     return _dx32_parameter_table
 
 
-def get_dx32_max_id():
-    
+def get_dx32_max_id() -> int:
+    """Returns the maximum allowed `dx32_id` value."""
     return _dx32_id_max

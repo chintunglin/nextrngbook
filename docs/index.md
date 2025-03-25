@@ -1,25 +1,37 @@
 # NextRandom: Next-Generation Random Number Generators  
 
-Random number generators (RNGs) are essential for a wide range of applications, 
-including computer simulations, machine learning, and cryptographic security. 
-They play a key role in Monte Carlo methods, secure communication, 
-and introduce randomness in artificial intelligence models. 
-The quality of an RNG directly impacts the reliability and security of these systems, 
-making the choice of a pseudorandom number generator (PRNG) a crucial decision.
+## Introduction
+
+NextRandom is a random number generator (RNG) package that is compatible with NumPy. 
+Its purpose is to introduce various ideas or systems for random number generation 
+that are not available in other packages within NumPy's ecosystem, 
+including NumPy and RandomGen. 
+
+The first system offered is the parallelization of the DX generator. 
+Instead of providing a single specific RNG and methods to spawn or jump from it,
+NextRandom offers a family of DX generators. This allows users to utilize 
+multi-threading or multi-processing with different RNGs. Each specific DX generator
+operates at the same level as a specific RNG in NumPy, such as MT19937 or PCG64.
+
+In the initial version of NextRandom, 
+over 4,000 distinct DX generators are available for users to apply.
+
+## Documentation overview
+
+1. [Quick Start](quick_start.md) -
+A quick guide to get you started with basic installation and usage.
+2. [Reference](dx_generator.md) - 
+Detailed reference for functions, classes, and modules in the package.
+3. [Explanation (Under Construction)](team_and_contributor.md) - 
+This section will provide in-depth explanations about the background, 
+objectives, and theory behind the package. Currently, it lists the team members.
 
 
-**NextRandom** is designed to address these needs by offering a high-quality, 
-high-performance suite of PRNGs. 
-The name "NextRandom" reflects both the **next random** number you will generate and 
-**next-generation random number generators**—representing a modern and new approaches 
-to generating randomness.
+## DX generator references
 
-## Why Choose NextRandom?  
+For more information about DX generators and related resources, 
+refer to the official 
+[DX Random Number Generators](http://web0.cs.memphis.edu/~dengl/dx-rng/) website, 
+which includes relevant papers and additional details.
 
-
-## DX Generator: The First PRNG in NextRandom
-
-
-
-## Quick Start  
 

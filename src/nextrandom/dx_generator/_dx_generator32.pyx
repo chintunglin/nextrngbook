@@ -1,15 +1,32 @@
 #cython: binding=True
+# MIT License
+# Copyright (c) 2025 chintunglin
 
+"""Defines the internal _DXGenerator32 class for 32-bit DX random number generator.
+
+Not intended for direct use by end users. Implements the _DXGenerator32 class,
+which provides the core random number generation mechanism
+based on 32-bit DX parameters.
+
+The _DXGenerator32 objects are instantiated via `dx_generator.create_dx32()`, 
+which serves as the public interface.
+
+Classes:
+    `_DXGenerator32` - A 32-bit DX random number generator.
+"""
 
 import numpy as np
 cimport numpy as np
 from libc.stdint cimport uint32_t, uint64_t
-from numpy.random cimport BitGenerator
+from numpy.random cimport BitGenerator, SeedSequence
+from numpy.typing import NDArray
+from typing import Union, Sequence
 
 __all__ = ["_DXGenerator32"]
 
-np.import_array()
+SeedType = Union[None, int, NDArray[np.integer], SeedSequence, Sequence[int]]
 
+np.import_array()
 
 cdef extern from "src/dx_k_s_32.h":
     
@@ -70,6 +87,15 @@ cdef uint64_t dx_k_2_raw(void *st) noexcept nogil:
 
 
 cdef class _DXGenerator32(BitGenerator):
+    """A 32-bit DX random number generator.
+    
+    The DX family consists of multiple RNGs characterized by different 
+    parameter sets. This class implements a specific DX generator based 
+    on provided parameters.
+
+    Not intended for direct use; instances should be created via 
+    `dx_generator.create_dx32()`.    
+    """
     
     _ss_support = {1, 2} # supported ss argument for _DXGenerator32
     
@@ -77,7 +103,13 @@ cdef class _DXGenerator32(BitGenerator):
     cdef float _log10_period
     cdef dx_k_s_32_state _rng_state
 
-    def __init__(self, bb, pp, kk, ss, log10_period=np.nan, seed=None):
+    def __init__(self, 
+                 bb: Union[float, int], 
+                 pp: Union[float, int], 
+                 kk: Union[float, int], 
+                 ss: Union[float, int], 
+                 log10_period: float = np.nan, 
+                 seed: SeedType = None):
 
         BitGenerator.__init__(self, seed)
         
@@ -151,15 +183,10 @@ cdef class _DXGenerator32(BitGenerator):
         self.__ss = value
 
     @property
-    def state(self):
-        """
-        Get and set the PRNG state
-
-        Returns
-        -------
-        state : dict
-            Dictionary containing the information required to describe the
-            state of the PRNG
+    def state(self) -> dict:
+        """The PRNG state.
+        
+        Information that describes the current state of the PRNG.
         """
 
         XX = np.zeros(self._rng_state.kk, dtype=np.uint32)

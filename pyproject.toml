@@ -10,6 +10,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nextrandom"
 version = "0.1.0"
+license = "MIT"
 dependencies = [
     "numpy>=2.0.0,<3",
 ]
@@ -38,7 +39,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "License :: OSI Approved :: MIT License",
     "Topic :: Software Development",
     "Topic :: Scientific/Engineering"
 ]

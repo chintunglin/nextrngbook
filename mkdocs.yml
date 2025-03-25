@@ -2,10 +2,27 @@ site_name: NextRandom Docs
 
 theme:
   name: "material"
+  features:
+    - content.code.copy
+  
+plugins:
+  - mkdocstrings
   
 nav:
-  - index.md
-  - tutorials.md
-  - how-to-guides.md
-  - reference.md
-  - explanation.md
+  - Home: index.md
+  - Quick Start: quick_start.md
+  - Reference:
+      - API Reference: references.md
+      - dx_generator: dx_generator.md
+  - Explanation: 
+      - Team: team_and_contributor.md
+  
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  
