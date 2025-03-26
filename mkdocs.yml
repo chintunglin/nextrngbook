@@ -1,4 +1,4 @@
-site_name: NextRandom Docs
+site_name: NextRNGBook Docs
 
 theme:
   name: "material"
@@ -11,8 +11,8 @@ plugins:
 nav:
   - Home: index.md
   - Quick Start: quick_start.md
-  - Reference:
-      - API Reference: references.md
+  - API Reference:
+      - Introduction: reference.md
       - dx_generator: dx_generator.md
   - Explanation: 
       - Team: team_and_contributor.md
@@ -25,4 +25,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
   

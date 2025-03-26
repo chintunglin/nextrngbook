@@ -7,7 +7,7 @@ NextRandom is a random number generator (RNG) package compatible with NumPy.
 It currently includes an implementation of the DX generator for random number
 generation, with plans to introduce additional generators in the future.
 
-**Modules:**
+**Subpackage:**
 
 - [`dx_generator`](dx_generator.md): Implements the DX algorithm for random 
 number generation.
