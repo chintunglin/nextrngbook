@@ -2,7 +2,7 @@
 
 * Chin-Tung Lin - [GitHub](https://github.com/chintunglin)
 
-## Theoretical Advisory
+## Theoretical Advisors
 
 * Prof. Henry Horng-Shing Lu - [Personal Website](https://stat.nycu.edu.tw/en/members/teacher/%E7%9B%A7%E9%B4%BB%E8%88%88-58192428)
 
