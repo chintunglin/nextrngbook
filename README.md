@@ -1,2 +1,2 @@
-# nextrandom
-NextRandom: Next Generation Random Number Generators
+# nextrngbook
+NextRNGBook: A Python Random Number Generation Package

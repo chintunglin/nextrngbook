@@ -1,35 +1,35 @@
-This section will guide you through the steps to install **NextRandom** and begin 
+This section will guide you through the steps to install **NextRNGBook** and begin 
 applying its functionality. If you're new to this package, follow the instructions 
 below to get started smoothly.
 
 ## Installation
 
-To install NextRandom, you can use the Python package manager `pip` 
+To install NextRNGBook, you can use the Python package manager `pip` 
 in your terminal or command line interface:
 
 ```bash
-pip install nextrandom
+pip install nextrngbook
 
 ``` 
 
 ## Import the package
 
-After installing NextRandom, you can start by importing the package into your 
-Python script. You will need to import both NextRandom and NumPy. 
-NextRandom is designed to work with the underlying uniform random number generator (RNG), 
+After installing NextRNGBook, you can start by importing the package into your 
+Python script. You will need to import both NextRNGBook and NumPy. 
+NextRNGBook is designed to work with the underlying uniform random number generators (RNGs), 
 while NumPy is used for higher-level operations such as generating random arrays, 
 matrices, and distributions.
 
 ```python
 
-from nextrandom.dx_generator import create_dx32
+from nextrngbook.dx_generator import create_dx32
 from numpy.random import Generator
 
 ``` 
 
 ## Create DX generators
 
-NextRandom provides the `create_dx32` function to initialize a specific RNG 
+NextRNGBook provides the `create_dx32` function to initialize a specific RNG 
 from the DX generator family, which includes over 4,000 built-in RNGs. 
 By calling this function, you can create an instance of a 32-bit uniform 
 DX generator that can be used for further operations.
@@ -37,7 +37,7 @@ DX generator that can be used for further operations.
 ```python
 
 >>> create_dx32()
-_DXGenerator32(bb=32747, pp=4294966997, kk=2, ss=2, log10_period=19.299999237060547)
+_DXGenerator32(bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.3125)
 
 ``` 
 
@@ -140,7 +140,7 @@ minimize potential dependencies between random sequences.
 
 ```python
 
-from nextrandom.dx_generator import create_dx32
+from nextrngbook.dx_generator import create_dx32
 from numpy.random import Generator
 
 # Create multiple DX generators with different dx32_id values

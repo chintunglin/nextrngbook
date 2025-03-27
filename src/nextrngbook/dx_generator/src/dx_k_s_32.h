@@ -1,5 +1,5 @@
 /*
- * The C source and header files are part of the Python package: nextrandom.
+ * The C source and header files are part of the Python package: NextRNGBook.
  * 
  * The core random number generator (RNG) is the 
  * 32-bit DX-k-s generator (for k <= KK, s = 1, 2 in this file) described in:

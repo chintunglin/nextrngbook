@@ -13,12 +13,12 @@ unique set of parameters. The `dx32_id` values are assigned in ascending
 order based on the `log10(period)` value of the parameters.
 
 Examples:
-    >>> from nextrandom.dx_generator import create_dx32
+    >>> from nextrngbook.dx_generator import create_dx32
     >>> create_dx32()
     _DXGenerator32(
-        bb=32747, pp=4294966997, kk=2, ss=2, log10_period=19.299999237060547
+        bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.3125
     )
-    >>> from nextrandom import dx_generator
+    >>> from nextrngbook import dx_generator
     >>> dx32_id_table = dx_generator.get_dx32_id_table()
     >>> print(dx32_id_table)
     {0: {'kk': '2', 'ss': '1', 'bb': '32693', 'pp': '2147483249', 'log10(period)': '18.7'}, 
@@ -73,7 +73,7 @@ del dx32_csv
 del dx32_parameter_reader
 
 
-def create_dx32(dx32_id: Union[float, int] = 270, 
+def create_dx32(dx32_id: Union[float, int] = 4194, 
                 seed: SeedType = None) -> _DXGenerator32:
     """Returns a `_DXGenerator32` object generated from the internal parameters.
     
@@ -105,7 +105,7 @@ def create_dx32(dx32_id: Union[float, int] = 270,
     Examples:
         >>> create_dx32()
         _DXGenerator32(
-            bb=32747, pp=4294966997, kk=2, ss=2, log10_period=19.299999237060547
+            bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.3125
         )
         >>> create_dx32(dx32_id=4000)
         _DXGenerator32(

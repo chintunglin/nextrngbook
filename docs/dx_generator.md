@@ -1,4 +1,4 @@
-::: src.nextrandom.dx_generator
+::: src.nextrngbook.dx_generator
 
 **Note:**
 
