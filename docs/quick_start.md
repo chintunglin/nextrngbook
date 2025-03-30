@@ -14,7 +14,7 @@ pip install nextrngbook
 
 ## Import the package
 
-After installing NextRNGBook, you can start by importing the package into your 
+After installing NextRNGBook, you can start by importing the package in your 
 Python script. You will need to import both NextRNGBook and NumPy. 
 NextRNGBook is designed to work with the underlying uniform random number generators (RNGs), 
 while NumPy is used for higher-level operations such as generating random arrays, 
@@ -29,9 +29,9 @@ from numpy.random import Generator
 
 ## Create DX generators
 
-NextRNGBook provides the `create_dx32` function to initialize a specific RNG 
-from the DX generator family, which includes over 4,000 built-in RNGs. 
-By calling this function, you can create an instance of a 32-bit uniform 
+NextRNGBook provides the `create_dx32` function to initialize a specific DX generator 
+from the DX generator family, which includes over 4,000 built-in DX generators. 
+By calling this function, you can create an instance of a 32-bit 
 DX generator that can be used for further operations.
 
 ```python
@@ -43,9 +43,8 @@ _DXGenerator32(bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.31
 
 `create_dx32(dx32_id, seed)` takes two parameters:
 
-- dx32_id: Selects a specific DX generator from the DX generator family (over 4000 options).
-- seed: Sets the RNG state for reproducibility (optional).
-This allows you to obtain a specific RNG with a controlled seed.
+- dx32_id: Selects a specific DX generator from the DX generator family (over 4,000 options).
+- seed: Sets the RNG state for reproducibility, provided that the seed is not `None`.
 
 
 ```python
@@ -58,7 +57,7 @@ _DXGenerator32(bb=1046381, pp=2147472413, kk=1301, ss=2, log10_period=12140.7998
 In short, `dx32_id` determines the specific DX generator, 
 and `seed` ensures reproducibility.
 For more details on potential issues with `dx32_id` values and reproducibility,
-refer to the [Reference section](dx_generator.md).
+refer to the [API Reference section](dx_generator.md).
 
 
 ## View DX generator info 
@@ -77,9 +76,9 @@ print(dx32_rng)
     Modulus    = 2146412747
     The log₁₀(period) of the PRNG is 12140.6
 
-## Use NumPy's Generator Class with DX generator
+## Use NumPy's Generator class with DX generator
 
-After creating a DX generator with create_dx32(), you can easily connect it to 
+After creating a DX generator with `create_dx32()`, you can easily connect it to 
 NumPy's `Generator` class.
 
 ```python
@@ -101,7 +100,7 @@ depending on your specific needs.
 For more information about the available methods, you can consult the 
 [NumPy documentation](https://numpy.org/doc/stable/reference/random/generator.html).
 Here are some examples of generating random numbers using NumPy’s 
-Generator with the DX generator.
+`Generator` with the DX generator.
 
 
 ```python
@@ -111,7 +110,7 @@ print(dx32.normal(0, 1, 20)) # generate twenty N(0, 1) data
 print(dx32.uniform(0, 1, 10)) # generate ten U(0, 1) data
 
 # randomly choose
-print(dx32.choice(["A", "B", "C", "D", "E"], size=30)) # choose ten elements with replacement
+print(dx32.choice(["A", "B", "C", "D", "E"], size=30)) # choose thirty elements with replacement
 
 # randomly shuffle
 sample_lst = ["A", "B", "C", "D", "E"]
@@ -134,9 +133,9 @@ print(sample_lst)
 ## Parallel random number generation
 
 To enable parallel computation, you can create multiple DX generators with 
-different dx32_id values. This approach allows for the generation of several 
-low-correlation generators, which can be utilized in parallel processes to 
-minimize potential dependencies between random sequences.
+different `dx32_id` values. This approach enables the creation of multiple 
+low-correlation generators, 
+reducing dependencies between random sequences in parallel processes.
 
 ```python
 
@@ -153,4 +152,4 @@ generators = [Generator(create_dx32(dx32_id=i)) for i in range(4100, 4108)]
 
 NumPy’s `Generator`, beyond basic random number generation, can be integrated 
 with libraries such as SciPy for scientific computing and SymPy for symbolic 
-mathematics. For more information, refer to their respective documentation.
+computation. For more information, refer to their respective documentation.

@@ -4,7 +4,7 @@
 
 """Provides an interface for generating `_DXGenerator32` objects from `dx32_id` values.
 
-Provides an end-user interface for generating _DXGenerator32 objects 
+Provides an end-user interface for generating `_DXGenerator32` objects 
 based on `dx32_id` values. It also allows users to access the internal table of `dx32_id` 
 values and their parameters, as well as retrieve the maximum allowed `dx32_id`.
  
