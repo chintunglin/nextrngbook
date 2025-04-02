@@ -56,4 +56,7 @@ keywords = [
 
 
 [project.urls]
-Homepage = "https://github.com/chintunglin/nextrngbook"
+Homepage = "https://chintunglin.github.io/nextrngbook/"
+Repository = "https://github.com/chintunglin/nextrngbook"
+Issues = "https://github.com/chintunglin/nextrngbook/issues"
+Documentation = "https://chintunglin.github.io/nextrngbook/"
