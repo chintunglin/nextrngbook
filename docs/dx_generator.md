@@ -1,3 +1,8 @@
+!!! danger "Caution"
+    The `dx_generator` subpackage is 
+    **not recommended for cryptographic applications**.  
+    It is intended for statistical simulations or machine learning tasks only.
+
 ::: src.nextrngbook.dx_generator
 
 !!! note "To ensure reproducibility for the RNG"    
