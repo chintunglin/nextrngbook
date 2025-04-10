@@ -22,41 +22,41 @@ matrices, and distributions.
 
 ```python
 
-from nextrngbook.dx_generator import create_dx32
+from nextrngbook.dx_generator import create_dx
 from numpy.random import Generator
 
 ``` 
 
 ## Create DX generators
 
-NextRNGBook provides the `create_dx32` function to initialize a specific DX generator 
+NextRNGBook provides the `create_dx` function to initialize a specific DX generator 
 from the DX generator family, which includes over 4,000 built-in DX generators. 
 By calling this function, you can create an instance of a 32-bit 
 DX generator that can be used for further operations.
 
 ```python
 
->>> create_dx32()
-_DXGenerator32(bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.3125)
+>>> create_dx()
+_DXGenerator(bb=1016882, pp=2146123787, kk=50873, ss=2, log10_period=474729.3125)
 
 ``` 
 
-`create_dx32(dx32_id, seed)` takes two parameters:
+`create_dx(dx_id, seed)` takes two parameters:
 
-- dx32_id: Selects a specific DX generator from the DX generator family (over 4,000 options).
+- dx_id: Selects a specific DX generator from the DX generator family (over 4,000 options).
 - seed: Sets the RNG state for reproducibility, provided that the seed is not `None`.
 
 
 ```python
 
->>> create_dx32(dx32_id=4000, seed=101)
-_DXGenerator32(bb=1046381, pp=2147472413, kk=1301, ss=2, log10_period=12140.7998046875)
+>>> create_dx(dx_id=4000, seed=101)
+_DXGenerator(bb=1046381, pp=2147472413, kk=1301, ss=2, log10_period=12140.7998046875)
 
 ``` 
 
-In short, `dx32_id` determines the specific DX generator, 
+In short, `dx_id` determines the specific DX generator, 
 and `seed` ensures reproducibility.
-For more details on potential issues with `dx32_id` values and reproducibility,
+For more details on potential issues with `dx_id` values and reproducibility,
 refer to the [API Reference section](dx_generator.md).
 
 
@@ -66,8 +66,8 @@ To obtain information about the created DX generator, you can print it out.
 
 ```python
 
-dx32_rng = create_dx32(dx32_id=3999)
-print(dx32_rng)
+dx_rng = create_dx(dx_id=3999)
+print(dx_rng)
 
 ``` 
 
@@ -78,14 +78,14 @@ print(dx32_rng)
 
 ## Use NumPy's Generator class with DX generator
 
-After creating a DX generator with `create_dx32()`, you can easily connect it to 
+After creating a DX generator with `create_dx()`, you can easily connect it to 
 NumPy's `Generator` class.
 
 ```python
 
->>> dx32 = Generator(dx32_rng)
->>> dx32
-Generator(_DXGenerator32) at ...
+>>> dx = Generator(dx_rng)
+>>> dx
+Generator(_DXGenerator) at ...
 
 ``` 
 
@@ -106,15 +106,15 @@ Here are some examples of generating random numbers using NumPy’s
 ```python
 
 # sampling from distributions
-print(dx32.normal(0, 1, 20)) # generate twenty N(0, 1) data
-print(dx32.uniform(0, 1, 10)) # generate ten U(0, 1) data
+print(dx.normal(0, 1, 20)) # generate twenty N(0, 1) data
+print(dx.uniform(0, 1, 10)) # generate ten U(0, 1) data
 
 # randomly choose
-print(dx32.choice(["A", "B", "C", "D", "E"], size=30)) # choose thirty elements with replacement
+print(dx.choice(["A", "B", "C", "D", "E"], size=30)) # choose thirty elements with replacement
 
 # randomly shuffle
 sample_lst = ["A", "B", "C", "D", "E"]
-dx32.shuffle(sample_lst)
+dx.shuffle(sample_lst)
 print(sample_lst)
 
 ``` 
@@ -133,17 +133,17 @@ print(sample_lst)
 ## Parallel random number generation
 
 To enable parallel computation, you can create multiple DX generators with 
-different `dx32_id` values. This approach enables the creation of multiple 
+different `dx_id` values. This approach enables the creation of multiple 
 low-correlation generators, 
 reducing dependencies between random sequences in parallel processes.
 
 ```python
 
-from nextrngbook.dx_generator import create_dx32
+from nextrngbook.dx_generator import create_dx
 from numpy.random import Generator
 
-# Create multiple DX generators with different dx32_id values
-generators = [Generator(create_dx32(dx32_id=i)) for i in range(4100, 4108)]
+# Create multiple DX generators with different dx_id values
+generators = [Generator(create_dx(dx_id=i)) for i in range(4100, 4108)]
 
 ``` 
 

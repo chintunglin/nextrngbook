@@ -2,17 +2,17 @@
 # MIT License
 # Copyright (c) 2025 chintunglin
 
-"""Defines the internal _DXGenerator32 class for 32-bit DX random number generator.
+"""Defines the internal _DXGenerator class for 32-bit DX random number generator.
 
-Not intended for direct use by end users. Implements the _DXGenerator32 class,
+Not intended for direct use by end users. Implements the _DXGenerator class,
 which provides the core random number generation mechanism
 based on 32-bit DX parameters.
 
-The _DXGenerator32 objects are instantiated via `dx_generator.create_dx32()`, 
+The _DXGenerator objects are instantiated via `dx_generator.create_dx()`, 
 which serves as the public interface.
 
 Classes:
-    `_DXGenerator32` - A 32-bit DX random number generator.
+    `_DXGenerator` - A 32-bit DX random number generator.
 """
 
 import numpy as np
@@ -22,7 +22,7 @@ from numpy.random cimport BitGenerator, SeedSequence
 from numpy.typing import NDArray
 from typing import Union, Sequence
 
-__all__ = ["_DXGenerator32"]
+__all__ = ["_DXGenerator"]
 
 SeedType = Union[None, int, NDArray[np.integer], SeedSequence, Sequence[int]]
 
@@ -30,7 +30,7 @@ np.import_array()
 
 cdef extern from "src/dx_k_s_32.h":
     
-    enum: KK # supported upper limit of kk argument for _DXGenerator32
+    enum: KK # supported upper limit of kk argument for _DXGenerator
 
     struct s_dx_k_s_32_state:
         uint32_t XX[KK]   # states with at most KK terms
@@ -86,7 +86,7 @@ cdef uint64_t dx_k_2_raw(void *st) noexcept nogil:
     return <uint64_t>dx_k_2_next32(<dx_k_s_32_state *> st)
 
 
-cdef class _DXGenerator32(BitGenerator):
+cdef class _DXGenerator(BitGenerator):
     """A 32-bit DX random number generator.
     
     The DX family consists of multiple RNGs characterized by different 
@@ -94,10 +94,10 @@ cdef class _DXGenerator32(BitGenerator):
     on provided parameters.
 
     Not intended for direct use; instances should be created via 
-    `dx_generator.create_dx32()`.    
+    `dx_generator.create_dx()`.    
     """
     
-    _ss_support = {1, 2} # supported ss argument for _DXGenerator32
+    _ss_support = {1, 2} # supported ss argument for _DXGenerator
     
     cdef int __ss
     cdef float _log10_period
@@ -178,7 +178,7 @@ cdef class _DXGenerator32(BitGenerator):
             self._bitgen.next_raw = &dx_k_2_raw
     
         else:
-            raise ValueError(f"ss must be in {_DXGenerator32._ss_support}.")
+            raise ValueError(f"ss must be in {_DXGenerator._ss_support}.")
 
         self.__ss = value
 
