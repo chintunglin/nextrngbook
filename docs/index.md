@@ -1,121 +1,108 @@
-# NextRNGBook: A Python Random Number Generation Package
+# NextRNGBook: A Python Random Number Generation Package for RNG Book
 
 ## Introduction
 
-The **NextRNGBook** package incorporates a variety of high-quality random number 
+The goal of **NextRNGBook** package is to incorporate a variety of high-quality random number 
 generators (RNGs) from 
 *Random Number Generators for Computer Simulation and Cyber Security* [[1]](#references). 
 Designed for seamless compatibility with **NumPy**, 
-this Python package integrates easily into existing workflows, 
-offering a selection of state-of-the-art random number generation techniques 
-suitable for scientific computing, large-scale simulations, and cryptographic tasks.
+this Python package can integrate easily into existing workflows, 
+offering a wide range of selections from state-of-the-art random number generation techniques 
+suitable for scientific computing, large-scale simulations, and cryptographic applications.
+
+The goal of designing high-quality random number generators is to produce variates 
+that behave like truly random numbers. 
+This means the generated variates can cover the space evenly over high dimensions, 
+and do not repeat for a very long time. 
+They can be generated efficiently across different systems, 
+and they can pass a wide range of statistical tests that detect hidden patterns. 
+A good RNG should perform reliably for large-scale simulations with  
+a strong support for parallel computing, 
+and an easy integration across various computing platforms. 
+For security applications,  generated variates need to be unpredictable, 
+so that future values cannot be inferred from past outputs.
+
+There are several  high-quality RNGs to be implemented in this NextRNGBook Package which should form a solid foundation 
+for statistical simulation and/or secure applications. 
+Combining strong theoretical supports and great practical performance, 
+NextRNGBook can help users to explore, evaluate, and 
+apply high-quality RNGs in a modern Python environment.
 
 
 ## Background and Motivation
 
-This section provides foundational information about RNGs 
+This section provides needed background information about RNGs to be used 
 and explains the motivation behind both the package and the proposed RNGs.
 
-<!--
-This section provides an overview of the **DX generator**, 
-focusing on its theoretical properties and mathematical expression. 
-The DX generator are a class of **Multiple Recursive Generators (MRGs)** 
-designed by Deng and Xu in 2003 to take advantage 
-of the desirable theoretical properties of MRGs, 
-such as long period lengths and equidistribution properties, 
-while maximizing efficiency. 
-They achieved this by limiting the number of nonzero coefficients and requiring 
-that these coefficients share the same multiplier. 
-Their major contribution was extending this idea to maximum-period MRGs of 
-larger and larger orders. 
-The result was the fast DX generator with both 
-excellent theoretical and empirical properties.
--->
 
+### Multiple Recursive Generators
 
-### Random Number Generators
+**Multiple recursive generators (MRGs)** have become one of the most commonly 
+used random number generators in computer simulation. 
+An MRG is defined by a \( k \)-th order linear recurrence relation:
 
-A general form of an RNG is defined as:
 
 $$
-X_i = f(X_{i-1}, X_{i-2}, \dots, X_{i-k}) \mod p, \quad i \geq k \tag{1}
+X_i = (\alpha_1 X_{i-1} + \alpha_2 X_{i-2} + \dots + \alpha_k X_{i-k}) \mod p, \quad i \geq k \tag{1}
 $$
 
-where \( f \) is a function of the most recent \( k \) integers, 
-and \( X_{0}, X_{1}, \dots, X_{k-1} \) represent the initial seeds 
-taken from \( \mathbb{Z}_p = \{0, 1, \dots, p-1\} \).
+where the modulus \( p \) is a large prime number, 
+and the initial seeds \( X_0, \dots, X_{k-1} \) are integers in 
+\( \mathbb{Z}_p = \{0, 1, \dots, p-1\} \), 
+not all of which are zero.
 
-To obtain variates \( U_i \) between 0 and 1, 
-the generated values \( X_i \) can be transformed using the formula:
-
-$$
-U_i = \frac{X_i}{p}
-$$
-
-However, to avoid the possibility of obtaining values exactly equal to 0 or 1, 
-it is recommended to apply the following transformation instead:
+A common way to obtain variates \( U_i \) 
+between 0 and 1 is to apply the transformation
 
 $$
-U_i = \frac{X_i + 0.5}{p}
+U_i = \frac{X_i}{p}.
+$$
+
+To improve statistical and numerical properties, 
+the following alternative can be used:
+
+$$
+U_i = \frac{X_i + 0.5}{p}.
+$$
+
+This alternative offers several advantages: 
+(i) it prevents the generation of exact values of 0 or 1, 
+thus avoiding issues in applications like generating a random variable 
+with a standard exponential distribution using \( X = -\ln(U) \) 
+or a logistic distribution using \( X = -\ln(U/(1-U)) \);
+(ii) the average value of \( U_i \) is closer to \( \frac{1}{2} \);
+(iii) the output range is symmetric around \( \frac{1}{2} \). See,  [[2]](#references).
+
+The **period length** of an RNG
+refers to the number of iterations (or random numbers generated) 
+before the sequence repeats itself. Every RNG eventually enters a cycle, 
+starting to produce the same sequence of numbers again after a certain number of steps. 
+For the MRG, the maximum period is given by \( p^k - 1 \), 
+which is achieved if and only if its characteristic polynomial 
+
+$$
+f(x) = x^k - \alpha_1 x^{k-1} - \alpha_2 x^{k-2} - \cdots - \alpha_k 
 $$
 
 
-### Desirable Properties
+is a primitive polynomial which can be checked using Algorithm AK in [[7]](#references).
 
-An ideal RNG should meet the **HELP** properties, 
-a set of fundamental properties introduced by Deng [[2]](#references)
-, ensuring its reliability and suitability for various applications. 
-These properties include:
+A maximal period MRG has a nice property of  **equidistribution** 
+in spaces up to \( k \)-dimensions, 
+meaning the random numbers are uniformly distributed across multiple dimensions. 
+This uniformity helps reducing correlation artifacts, 
+which can improve the accuracy of simulations, 
+especially in high-dimensional spaces. 
+**Empirical tests** have been tested on several maximal period MRGs with great results. 
+In summary, a large order MRG will yield an extremely long period by modern standards, 
+it has a nice equidistribution property over high dimensional space, 
+and it can pass stringent extensive empirical tests.
 
-- **H**igh-dimensional equidistribution: 
-The RNG should generate uniformly distributed tuples across multiple dimensions, 
-which reduces correlation artifacts and improves accuracy in high-dimensional simulations. 
-
-
-- **E**fficiency: 
-The RNG must be computationally efficient, 
-producing high-quality random numbers with minimal time and resource consumption, 
-crucial for large-scale simulations and real-time applications.
-
-- **L**ong period length: 
-The period length refers to the number of iterations 
-(or random numbers generated) before the sequence repeats itself. 
-Every RNG will eventually enter a cycle and start producing the same sequence 
-of numbers again after a certain number of steps.
-To avoid premature sequence repetition, 
-the RNG should have an extensive period length, 
-which is critical for large simulations and cryptographic applications.
-
-- **P**ortability: 
-The RNG should be adaptable across different computing environments 
-and hardware architectures without compromising statistical properties 
-or efficiency, ensuring consistency and reproducibility.
-
-
-In addition to the HELP properties, 
-a random number generator should demonstrate favorable **empirical performance**. 
-It should pass empirical tests, such as those in **TestU01**, 
-to verify its randomness and reliability.
-
-Another important aspect is the **parallelizability** of the RNG. 
-It should support parallel processing, 
-enabling the generation of substreams that can be used concurrently 
-without significant loss of quality or independence, 
-which is critical for large-scale simulations.
-
-Furthermore, the RNG should **ensure security** in cryptographic and 
-security-critical applications. 
-A secure RNG is designed to generate random numbers that are 
-resistant to prediction, manipulation, or reverse engineering. 
-These RNGs are essential for applications such as encryption, 
-digital signatures, key generation, and other security protocols,
-where the unpredictability of random numbers is crucial.
 
 
 ### Linear Congruential Generators
 
-If \( f \) is a linear function with \( k = 1 \), 
-the generator in Eq. (1) becomes a **Linear Congruential Generator (LCG)**. 
+When \( k = 1 \) in Eq. (1), the MRG reduces to a **Linear Congruential Generator (LCG)**.
 The sequence is given by:
 
 $$
@@ -126,7 +113,8 @@ where \( X_i \), \( A \), \( B \), and \( p \) are nonnegative integers,
 and \( X_0 \neq 0 \) is chosen from \( \mathbb{Z}_p \) as a seed. 
 If \( A \neq 0 \), it is possible to achieve a full period of \( p \).
 
-On the other hand, when \( A = 0 \), the sequence is described by:
+It is common to use \( A = 0 \) because it offers faster computation and 
+clear properties. In this case, the sequence is described by:
 
 $$
 X_i = B X_{i-1} \mod p, \quad i \geq 1 \tag{3}
@@ -136,68 +124,57 @@ where \( X_0 \neq 0 \).
 When \( p \) is a prime number and \( B \) is a primitive root modulo \( p \), 
 the LCG in Eq. (3) has a period of \( p-1 \).
 
-While LCGs gained popularity for their simplicity, 
-efficiency, and well-established theoretical properties, 
-they are now considered less ideal. 
-This is primarily due to their relatively short periods by modern standards, 
+Until recently, LCGs enjoyed popularity for their simplicity, 
+efficiency, and well-known theoretical properties. 
+However, they are now considered less ideal due to their relatively short periods by modern standards, 
 as well as their inability to achieve equidistribution in dimensions greater than one. 
-Furthermore, LCGs often show poor empirical performance, 
-failing to meet the requirements of rigorous statistical tests.
-
-[PCG64](https://numpy.org/doc/stable/reference/random/bit_generators/pcg64.html) 
-attempts to address this issue by using a 128-bit LCG with \( p = 2^{128} \), 
-combined with a special transformation. 
-However, the use of 128 bits introduces portability challenges, 
-as not all platforms support 128-bit unsigned integers. 
-On the other hand, a natural extension of the LCGs that achieves good properties, 
-does not require transformations, 
-and does not rely on high-bit operations (therefore avoiding portability issues) 
-will be introduced in the next subsection.
+Furthermore, LCGs also show poor empirical performance, 
+failing to pass rigorous statistical tests.
 
 
+### PCG64: Permuted Congruential Generator
 
-### Multiple Recursive Generators
+LCG is the baseline RNG used in the popular
+[PCG64](https://numpy.org/doc/stable/reference/random/bit_generators/pcg64.html)
+which is designed to address some of the inherent shortcomings of LCGs. Specifically, 
+PCG64 uses a 128-bit LCG with \( p = 2^{128} \) and \( A \neq 0 \) in Eq. (2), 
+dividing 128-bit output into two 64-bit outputs,
+appling permutation and combination transformation to produce 64-bit (or two 32-bit) generated values. 
+This permutation and combination, along with the high-bit modulus, 
+helps improve the generator’s empirical performance. It was shown that 
+PCG64 can pass stringent statistical tests whereas traditional LCGs often fail.
+However, since its baseline structure is still based on an LCG, 
+it is expected to inherit the same limitations of LCG. 
+In particular, it can not achieve equidistribution in higher dimensions, 
+and its period, with an upper limit of \( 2^{128} \), is relatively short for 
+modern applications that demand longer sequences. 
+Furthermore, its reliance on 128-bit unsigned integers introduces 
+portability concerns, as not all platforms support such high-bit operations.
 
-The **Multiple Recursive Generator (MRG)**  is a natural extension of the LCG. 
-The random numbers are generated sequentially 
-using a \( k \)-th order linear recurrence:
+We should note that the modulus used by PCG64 is \( p = 2^{128} \) in Eq. (2) 
+is not a prime number whereas the modulus $p$ used
+for LCG or MRG is a prime number which can be of size with 32-bit or 64-bit outputs. 
+Large order MRGs in Eq. (1) do not require 
+additional generation time for permuation and/or 
+combination transformation as required by PCG64. 
+Comparing with PCG64, however, the MRGs 
+required expensive modulus operation. 
+Next, we will consider an efficient class of MRG to speed up its generating time.
 
-$$
-X_i = (\alpha_1 X_{i-1} + \alpha_2 X_{i-2} + \dots + \alpha_k X_{i-k}) \mod p, \quad i \geq k \tag{4}
-$$
+### DX Generators: A class of efficient MRGs
 
-The initial seeds \( X_0, \dots, X_{k-1} \) are integers in \( \mathbb{Z}_p \),
-with the condition that not all of them are zero. 
-The modulus \( p \) is a large prime number.
+The MRG achieves good theoretical properties, 
+does not require any output transformations, 
+and avoids reliance on high-bit arithmetic. 
+However, as the order \( k \) in Eq. (1) increases, 
+two challenges emerge: 
+(1) a loss of efficiency due to the increasing number of multiplications, 
+and (2) the difficulty of selecting parameters that yield the maximum period length.
 
-It is well known that the maximum period of the MRG in the recurrence relation (4) 
-is \( p^k - 1 \), which is achieved if and only if its characteristic polynomial 
-
-$$
-f(x) = x^k - \alpha_1 x^{k-1} - \alpha_2 x^{k-2} - \cdots - \alpha_k 
-$$
-
-
-is a primitive polynomial. 
-A maximal period MRG also demonstrates equidistribution in spaces up to 
-$k$ dimension and shows favorable performance in empirical tests. 
-Therefore, a large-order MRG provides improved empirical performance, 
-longer periods, and better uniformity across higher dimensions, 
-all without the need for additional transformations. 
-When \( p \) is 32-bit, there are no portability issues, 
-making the RNG more adaptable to different platforms without relying on high-bit operations.
-However, when the order \( k \) increases, 
-two challenges arise: efficiency issues due to the numerous multiplications involved, 
-and the difficulty of finding the right parameters to achieve the maximum period length.
-The **DX Generator** was proposed to address these issues.
-
-
-### DX Generators
-
-The **DX-k-s** class of generators improves the efficiency of the MRG 
-by restricting the number of nonzero coefficients to \( s \) 
-and requiring them all to have the same multiplier \( B \). 
-Therefore, the \( k \)-th order linear recurrences for \( s = 1, 2 \) are:
+The **DX-k-s** class of generators is an efficient subclass of the MRG, 
+in which the number of nonzero coefficients is restricted to \( s \), 
+and all nonzero terms share the same multiplier \( B \).
+The \( k \)-th order linear recurrences for \( s = 1, 2 \) are given by:
 
 When \( s = 1 \):
 
@@ -217,15 +194,43 @@ where
 \( B \) is the multiplier, 
 and \( p \) is the prime modulus.
 
-The generators are efficient, as they require only a single multiplication and addition. 
-Additionally, Deng [[3]](#references) proposed an efficient search algorithm called GMP 
+
+With appropriate parameter choices, 
+the DX generators satisfy the **HELP** properties proposed 
+by Deng [[2, 3]](#references), 
+making them suitable for a wide range of applications:
+
+- **H**igh-dimensional equidistribution: 
+The maximal period DX generators ensure high-dimensional equidistribution up to \( k \) dimensions. 
+Specifically, every \( d \)-tuple (where \( 1 \leq d \leq k \)) of integers 
+between 0 and \( p-1 \) appears exactly \( p^{k-d} \) 
+times across the entire period \( p^k - 1 \), 
+except for the all-zero tuple, 
+which appears one less time, i.e., \( p^{k-d} - 1 \). 
+
+- **E**fficiency: 
+By limiting the number of nonzero coefficients and using a shared multiplier, 
+DX generators reduce the computational cost while maintaining high-quality outputs.
+
+- **L**ong period length: 
+With appropriate parameters, 
+DX generators can achieve the maximum period \( p^k - 1 \), 
+sufficient for most simulation scenarios.
+
+- **P**ortability: 
+DX generators avoid high-bit arithmetic and output transformations, 
+making them easy to implement across various platforms 
+without compromising performance or statistical quality.
+
+
+Additionally, Deng [[4]](#references) proposed an efficient search algorithm called GMP 
 for finding maximal period MRGs of large order. 
 With the Algorithm GMP, the maximum period parameters for DX generators can be identified, 
 achieving a period length of \( p^k - 1 \), 
 \( k \)-dimensional equidistribution, 
 and favorable empirical test results.
 
-Deng [[3]](#references) also proposed a method for constructing maximum-period MRGs 
+Deng et. al. [[5]](#references) also proposed a method for constructing maximum-period MRGs 
 from a single DX generator. 
 Using this method, multiple distinct maximal-period MRGs 
 can be found and then assigned to different threads or processors for parallel simulations. 
@@ -233,7 +238,7 @@ This approach is more effective than traditional methods,
 such as "jump-ahead parallelization."
 
 
-For more details on the DX generators, 
+For more details on the DX generator, 
 refer to [Chapter 3](https://link.springer.com/chapter/10.1007/978-3-031-76722-7_3)
 of the RNG book [[1]](#references). 
 **Section 3.1** discusses the advantage and challenge of large order MRGs, 
@@ -244,21 +249,29 @@ with the classical method covered in **Section 8.1**
 and the advantage of the proposed method in **Section 8.2.2**.
 
 
+
 ### DL/DS/DT/DW Generators
 
-The **DX generator** is a highly efficient MRG recognized 
-for its speed and favorable statistical properties. 
+The **DX generator** is an efficient MRG 
+with its generating speed and nice statistical properties. 
 However, it has two potential limitations: 
-(a) poor initialization behavior, 
+(a) bad initialization effect, 
 where a near-zero state may result in a prolonged sequence of zero values, 
 and (b) suboptimal spectral test results in dimensions higher than \( k \). 
 These limitations arise from the generator's design, 
 which prioritizes efficiency by using a minimal number of non-zero terms 
-in the recurrence equation (4).
+in Eq. (1). 
+This so-called bad initialization effect is rarely encountered in practice. 
+Unless the initial state is deliberately chosen to be nearly zero, 
+it is extremely unlikely for the generator to enter such 
+problematic states during typical use. 
+Moreover, DX generators have passed stringent empirical tests, 
+indicating that their overall statistical quality remains strong in practice.
 
-To address these issues while ensuring efficiency, 
+
+To address these potential limitations while ensuring efficiency, 
 the **DL**, **DS**, and **DT generators** 
-were developed by incorporating additional non-zero terms in the recurrence relation (4). 
+were developed by incorporating additional non-zero terms in Eq. (1). 
 While the DL generator improves initialization behavior, 
 its spectral performance in dimensions higher than \( k \) remains somewhat limited. 
 The DS and DT generators enhance both initialization behavior 
@@ -287,15 +300,49 @@ refer to **Section 3.3** of
 and [Chapter 9](https://link.springer.com/chapter/10.1007/978-3-031-76722-7_9) 
 for a more detailed description.
 
+
 ### Security Consideration
 
-In cryptographic and security-critical applications, 
-the RNG should **ensure security**. 
-While classical linear generators, such as MRGs, 
-exhibit excellent statistical properties and are suitable for statistical simulations, 
-they are not appropriate for use as secure RNGs.
-Therefore, many secure random number generators 
-have been developed to address these security concerns. 
+In cryptographic applications, 
+the security of a stream cipher depends entirely on the quality of its key stream. 
+A truly random key stream would result in ciphertext that
+behaves like a random sequence of variates, 
+making it extremely difficult for attackers to decrypt 
+without knowing the key stream. 
+However, truly random sequences cannot be generated by deterministic algorithms, 
+the best that we can hope is to contruct some well-designed **secure RNGs**.
+
+A secure RNG should have a long period, 
+strong unpredictability (in both forward and backward directions), 
+excellent statistical properties, 
+high efficiency, 
+and a simple, flexible design. 
+While many linear generators (such as MRGs) 
+perform well in statistical simulations, 
+they are not considered as secure. 
+Their linearity allows attackers to predict future values by solving recurrence relations 
+from a few observed outputs.
+
+There are several secure RNGs/ciphers proposed in the literature. 
+For example, **RC4** is a popular 8-bit RNG
+and **HC-256**, **ChaCha/Salsa** and **Rabbit** are popular secure ciphers 
+which are among the finalists in eStream Project.
+Most of the proposed RNGs applied ARX (Addition, Rotation, and XOR) operations 
+to produce ''randomness'' and ''unpredictability''.
+Consequently, one major weakness of these secure RNGs is lack of 
+theoretical support for statistical properties. 
+
+To address this, in the RNG Book, 
+we propose to inject a good RNG to the exisiting popular secure ciphers 
+which incorporate 
+nonlinearity transformation and additional techniques to resist attacks. 
+For example, Deng et al. [[6]](#references) 
+proposed scrambling or hiding the generated values 
+by shuffling or mixing. 
+In particular, **eRC** is an enhancement to **RC4** 
+with 32-bit or 64-bit variates in its shuffle table.
+Similar idea can be used to enhance **HC** with **eHC** 
+by injecting two good RNGs to the two shuffle tables.
 For more details, refer to **Part IV** of the RNG book [[1]](#references).
 
 
@@ -311,6 +358,13 @@ such as `jumped` or `spawn`,
 where a single RNG with different starting seeds may lead to overlaps and high correlations. 
 Different combinations of \( B \), \( p \), \( k \), and \( s \) in the DX generator 
 effectively mitigate these issues, enabling better parallelization.
+
+There are wide range of DX generators can be selected with $k$ 
+(from $k=2$, $k=3$, $\cdots$, upto  $k > 50,000$) and $s$ ($s=1$ or $s=2$). 
+There are several selections of prime modulus $p$ which can be of size 
+$31$-bit or $32$-bit. 
+The period length can be extremely long. 
+In the future, we will extend the size of $p$ to 64-bit for DX-64 generator later.
 
 ## NextRNGBook Expansion Plans
 
@@ -350,14 +404,31 @@ designed for cryptographic and security-critical applications, such as:
  Design, Search, Theory, and Application* (1st ed.). Springer. 
  [https://doi.org/10.1007/978-3-031-76722-7](https://doi.org/10.1007/978-3-031-76722-7)
  
-[2] Deng, L.-Y. (2005). 
+[2] Deng, L. Y., & Xu, H. (2003). 
+*A system of high-dimensional, efficient, long-cycle and portable uniform random number generators*. 
+ACM Transactions on Modeling and Computer Simulation (TOMACS), 13(4), 299-309.
+ 
+[3] Deng, L.-Y. (2005). 
 *Efficient and portable multiple recursive generators of large order*. 
 ACM Transactions on Modeling and Computer Simulation, 15(1), 1–13. 
 [https://doi.org/10.1145/1044322.1044323](https://doi.org/10.1145/1044322.1044323)
 
-[3] Deng, L. Y. (2004). 
+[4] Deng, L. Y. (2004). 
 *Generalized Mersenne prime number and its application to random number generation*. 
 In Monte Carlo and Quasi-Monte Carlo Methods 2002: 
 Proceedings of a Conference held at the National University of Singapore, 
 Republic of Singapore, November 25–28, 2002 (pp. 167-180). Springer Berlin Heidelberg.
 [https://doi.org/10.1007/978-3-642-18743-8_9](https://doi.org/10.1007/978-3-642-18743-8_9)
+
+[5] Deng, L. Y., Winter, B. R., Shiau, J. J. H., Lu, H. H. S., Kumar, N., 
+& Yang, C. C. (2023). 
+*Parallelizable efficient large order multiple recursive generators*. 
+Parallel Computing, 117, 103036.
+
+[6] Deng, L. Y., Shiau, J. J. H., Lu, H. H. S., & Bowman, D. (2018). 
+*Secure and fast encryption (SAFE) with classical random number generators*. 
+ACM Transactions on Mathematical Software (TOMS), 44(4), 1-17.
+
+[7] Knuth, D. E. (1998). 
+*The art of computer programming, vol 2, seminumerical algorithms, 3rd edition*. 
+Addison-Wesley.
