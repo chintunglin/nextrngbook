@@ -12,7 +12,7 @@ nav:
   - Home: index.md
   - Quick Start: quick_start.md
   - API Reference:
-      - Introduction: reference.md
+      - Overview: reference.md
       - dx_generator: dx_generator.md
   - Explanation: 
       - Team: team_and_contributor.md
@@ -29,7 +29,8 @@ markdown_extensions:
       generic: true
   - admonition
   - pymdownx.details
+  - toc:
+      toc_depth: 2
 
 extra_javascript:
   - javascripts/mathjax.js
-  

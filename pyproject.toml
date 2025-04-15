@@ -20,7 +20,7 @@ authors = [
 maintainers = [
   { name="Lin, Chin-Tung", email="tonylin8704@gmail.com" },
 ]
-description = "NextRNGBook: A Python Random Number Generation Package"
+description = "A Python Random Number Generation Package for RNG Book"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [

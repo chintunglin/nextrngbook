@@ -16,14 +16,14 @@ This means the generated variates can cover the space evenly over high dimension
 and do not repeat for a very long time. 
 They can be generated efficiently across different systems, 
 and they can pass a wide range of statistical tests that detect hidden patterns. 
-A good RNG should perform reliably for large-scale simulations with  
+A good RNG should perform reliably for large-scale simulations with 
 a strong support for parallel computing, 
 and an easy integration across various computing platforms. 
 For security applications,  generated variates need to be unpredictable, 
 so that future values cannot be inferred from past outputs.
 
-There are several  high-quality RNGs to be implemented in this NextRNGBook Package which should form a solid foundation 
-for statistical simulation and/or secure applications. 
+There are several  high-quality RNGs to be implemented in this NextRNGBook Package which should provide a solid foundation 
+for better statistical simulation and/or secure applications. 
 Combining strong theoretical supports and great practical performance, 
 NextRNGBook can help users to explore, evaluate, and 
 apply high-quality RNGs in a modern Python environment.
@@ -59,19 +59,22 @@ U_i = \frac{X_i}{p}.
 $$
 
 To improve statistical and numerical properties, 
-the following alternative can be used:
+Deng and Xu [[2]](#references) recommended the following modification:
 
 $$
 U_i = \frac{X_i + 0.5}{p}.
 $$
 
-This alternative offers several advantages: 
+This modification can offer several advantages: 
 (i) it prevents the generation of exact values of 0 or 1, 
 thus avoiding issues in applications like generating a random variable 
 with a standard exponential distribution using \( X = -\ln(U) \) 
 or a logistic distribution using \( X = -\ln(U/(1-U)) \);
-(ii) the average value of \( U_i \) is closer to \( \frac{1}{2} \);
-(iii) the output range is symmetric around \( \frac{1}{2} \). See,  [[2]](#references).
+(ii) the average value of \( U_i \) is closer to \( \frac{1}{2} \) 
+because the output range is symmetric around \( \frac{1}{2} \). See, the paper by
+Deng and Xu [[2]](#references). To produce a 32-bit integer variate, say, we can simply 
+scale \( U_i \) by \(2^{32}\) 
+using the floor function \( Y_i = \lfloor U_i \cdot 2^{32} \rfloor \). 
 
 The **period length** of an RNG
 refers to the number of iterations (or random numbers generated) 
@@ -85,11 +88,21 @@ f(x) = x^k - \alpha_1 x^{k-1} - \alpha_2 x^{k-2} - \cdots - \alpha_k
 $$
 
 
-is a primitive polynomial which can be checked using Algorithm AK in [[7]](#references).
+is a primitive polynomial which can be checked using proposed algorithms in [[3, 4, 7]](#references).
 
 A maximal period MRG has a nice property of  **equidistribution** 
 in spaces up to \( k \)-dimensions, 
-meaning the random numbers are uniformly distributed across multiple dimensions. 
+Specifically, according to 
+Lidl and Niederreiter [1994, Theorem 7.43]  [[8]](#references), 
+for $1 \leq d \leq k$, 
+
+- every non-zero $d$-tuple $(a_1, a_2, \cdots, a_d)$ appears the 
+*same number* of times ($p^{k-d}$) over its entire period $p^k-1$.
+
+- all-zero $d$-tuple $(0, 0, \cdots, 0)$ 
+appears *one times less* ($p^{k-d}-1$).
+
+This would imply the random numbers are uniformly distributed across dimensions $d\leq k$. 
 This uniformity helps reducing correlation artifacts, 
 which can improve the accuracy of simulations, 
 especially in high-dimensional spaces. 
@@ -215,7 +228,7 @@ DX generators reduce the computational cost while maintaining high-quality outpu
 - **L**ong period length: 
 With appropriate parameters, 
 DX generators can achieve the maximum period \( p^k - 1 \), 
-sufficient for most simulation scenarios.
+which is more than sufficient for most simulation scenarios even with moderate order \(k\).
 
 - **P**ortability: 
 DX generators avoid high-bit arithmetic and output transformations, 
@@ -223,14 +236,14 @@ making them easy to implement across various platforms
 without compromising performance or statistical quality.
 
 
-Additionally, Deng [[4]](#references) proposed an efficient search algorithm called GMP 
+Additionally, Deng [[4]](#references) proposed an improved efficient search algorithm called GMP 
 for finding maximal period MRGs of large order. 
-With the Algorithm GMP, the maximum period parameters for DX generators can be identified, 
+With the Algorithm GMP, the maximum period parameters for DX generators can be found, 
 achieving a period length of \( p^k - 1 \), 
 \( k \)-dimensional equidistribution, 
-and favorable empirical test results.
+and great empirical test results.
 
-Deng et. al. [[5]](#references) also proposed a method for constructing maximum-period MRGs 
+Deng et. al. [[5]](#references) also proposed a method for automatically constructing maximum-period MRGs 
 from a single DX generator. 
 Using this method, multiple distinct maximal-period MRGs 
 can be found and then assigned to different threads or processors for parallel simulations. 
@@ -321,9 +334,12 @@ While many linear generators (such as MRGs)
 perform well in statistical simulations, 
 they are not considered as secure. 
 Their linearity allows attackers to predict future values by solving recurrence relations 
-from a few observed outputs.
+from a few observed outputs. To address this,  **SAFE** (Secure And Fast Encryption), 
+Deng et al. [[6]](#references) proposed to use two shuffle tables 
+with injection of two good RNGs with nonlinearity transformation and 
+mutual shuffling technique to resist attacks.
 
-There are several secure RNGs/ciphers proposed in the literature. 
+There are several other popular secure RNGs/ciphers proposed in the literature. 
 For example, **RC4** is a popular 8-bit RNG
 and **HC-256**, **ChaCha/Salsa** and **Rabbit** are popular secure ciphers 
 which are among the finalists in eStream Project.
@@ -333,13 +349,10 @@ Consequently, one major weakness of these secure RNGs is lack of
 theoretical support for statistical properties. 
 
 To address this, in the RNG Book, 
-we propose to inject a good RNG to the exisiting popular secure ciphers 
+we propose to inject a good RNG to the existing popular secure ciphers 
 which incorporate 
 nonlinearity transformation and additional techniques to resist attacks. 
-For example, Deng et al. [[6]](#references) 
-proposed scrambling or hiding the generated values 
-by shuffling or mixing. 
-In particular, **eRC** is an enhancement to **RC4** 
+For example,  **eRC** is an enhancement to **RC4** 
 with 32-bit or 64-bit variates in its shuffle table.
 Similar idea can be used to enhance **HC** with **eHC** 
 by injecting two good RNGs to the two shuffle tables.
@@ -360,16 +373,16 @@ Different combinations of \( B \), \( p \), \( k \), and \( s \) in the DX gener
 effectively mitigate these issues, enabling better parallelization.
 
 There are wide range of DX generators can be selected with $k$ 
-(from $k=2$, $k=3$, $\cdots$, upto  $k > 50,000$) and $s$ ($s=1$ or $s=2$). 
+(from $k=2$, $k=3$, $\cdots$, up to  $k = 50,873$) and $s$ ($s=1$ or $s=2$). 
 There are several selections of prime modulus $p$ which can be of size 
 $31$-bit or $32$-bit. 
-The period length can be extremely long. 
-In the future, we will extend the size of $p$ to 64-bit for DX-64 generator later.
+The period length ranges from approximately $10^{18.7}$ to $10^{474729.3}$. 
+There are many more parameters $B$'s can be found for a given DX-$k$-$s$. 
+In the future, we will also ''extend'' the proposed RNGs in several directions, 
+with an even larger order $k$ and/or  increase the size of $p$ 
+from 32-bit to 64-bit for various RNGs later (e.g. DX-64).
 
 ## NextRNGBook Expansion Plans
-
-NextRNGBook will include the **64-bit DX generator** 
-and is set to expand with additional RNGs discussed in the book [[1]](#references).
 
 The package will feature RNGs for **statistical simulations**, 
 available in both 32-bit and 64-bit versions, including:
@@ -382,11 +395,14 @@ available in both 32-bit and 64-bit versions, including:
 In addition, **secure RNGs** will be introduced, 
 designed for cryptographic and security-critical applications, such as:
 
-- **SAFE**
-- **eRC**
-- **eHC**
-- **eChaCha**
-- **eRabbit**
+- **SAFE (Secure And Fast Encryption)**: with mutual shuffle on two RNGs.
+- **eRC**: enhancement on RC4  8bit stream cipher.
+- **eHC**: enhancement on HC-256 and HC128 stream ciphers.
+- **eChaCha**: enhancement on ChaCha/Salsa stream ciphers.
+- **eRabbit**: enhancement on Rabbit stream ciphers.
+
+NextRNGBook will also include the **64-bit** RNGs version of various
+32-bit RNGs as previously discussed.
 
 
 ## Learn More
@@ -432,3 +448,7 @@ ACM Transactions on Mathematical Software (TOMS), 44(4), 1-17.
 [7] Knuth, D. E. (1998). 
 *The art of computer programming, vol 2, seminumerical algorithms, 3rd edition*. 
 Addison-Wesley.
+
+[8] Lidl, R., and Niederreiter, H. (1994). 
+*Introduction to Finite Fields and Their Applications  . Revised Edition*. 
+Cambridge University Press, Cambridge, MA.

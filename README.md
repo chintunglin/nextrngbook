@@ -1,12 +1,32 @@
-# NextRNGBook: A Python Random Number Generation Package
+# NextRNGBook: A Python Random Number Generation Package for RNG Book
 
-The **NextRNGBook** package incorporates a variety of high-quality random number 
+## Introduction
+
+The goal of **NextRNGBook** package is to incorporate a variety of high-quality random number 
 generators (RNGs) from 
 *Random Number Generators for Computer Simulation and Cyber Security* [[1]](#references). 
 Designed for seamless compatibility with **NumPy**, 
-this Python package integrates easily into existing workflows, 
-offering a selection of state-of-the-art random number generation techniques 
-suitable for scientific computing, large-scale simulations, and cryptographic tasks.
+this Python package can integrate easily into existing workflows, 
+offering a wide range of selections from state-of-the-art random number generation techniques 
+suitable for scientific computing, large-scale simulations, and cryptographic applications.
+
+The goal of designing high-quality random number generators is to produce variates 
+that behave like truly random numbers. 
+This means the generated variates can cover the space evenly over high dimensions, 
+and do not repeat for a very long time. 
+They can be generated efficiently across different systems, 
+and they can pass a wide range of statistical tests that detect hidden patterns. 
+A good RNG should perform reliably for large-scale simulations with 
+a strong support for parallel computing, 
+and an easy integration across various computing platforms. 
+For security applications,  generated variates need to be unpredictable, 
+so that future values cannot be inferred from past outputs.
+
+There are several  high-quality RNGs to be implemented in this NextRNGBook Package which should provide a solid foundation 
+for better statistical simulation and/or secure applications. 
+Combining strong theoretical supports and great practical performance, 
+NextRNGBook can help users to explore, evaluate, and 
+apply high-quality RNGs in a modern Python environment.
 
 
 ## Documentation
