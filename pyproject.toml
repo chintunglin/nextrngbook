@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nextrngbook"
-version = "0.1.0"
+version = "0.1.0-post1"
 license = "MIT"
 dependencies = [
     "numpy>=2.0.0,<3",
@@ -18,7 +18,7 @@ authors = [
   { name="Lin, Chin-Tung", email="tonylin8704@gmail.com" },
 ]
 maintainers = [
-  { name="Lin, Chin-Tung", email="tonylin8704@gmail.com" },
+  { name="Cai, Meng-Xun", email="rr991370@gmail.com" },
 ]
 description = "A Python Random Number Generation Package for RNG Book"
 readme = "README.md"
@@ -56,7 +56,7 @@ keywords = [
 
 
 [project.urls]
-Homepage = "https://chintunglin.github.io/nextrngbook/"
-Repository = "https://github.com/chintunglin/nextrngbook"
-Issues = "https://github.com/chintunglin/nextrngbook/issues"
-Documentation = "https://chintunglin.github.io/nextrngbook/"
+Homepage = "https://nextrngbook.github.io/nextrngbook/"
+Repository = "https://github.com/nextrngbook/nextrngbook"
+Issues = "https://github.com/nextrngbook/nextrngbook/issues"
+Documentation = "https://nextrngbook.github.io/nextrngbook/"
