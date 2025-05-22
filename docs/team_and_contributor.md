@@ -1,4 +1,8 @@
-## Developer and Maintainer
+## Current Developer and Maintainer
+
+* Meng-Xun Cai - [GitHub](https://github.com/jerry263104)
+
+## Past Developer
 
 * Chin-Tung Lin - [GitHub](https://github.com/chintunglin)
 
