@@ -29,11 +29,11 @@ NextRNGBook can help users to explore, evaluate, and
 apply high-quality RNGs in a modern Python environment.
 
 
-## Documentation
+## Documentation & Distribution
 
-For full details, 
-please refer to the 
-[NextRNGBook Documentation](https://chintunglin.github.io/nextrngbook/).
+For full details, please refer to the links.
+- **Documentation**: [NextRNGBook Documentation](https://nextrngbook.github.io/nextrngbook/)
+- **PyPI**: [NextRNGBook on PyPI](https://pypi.org/project/nextrngbook/)
 
 
 ## References
